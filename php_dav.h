@@ -36,6 +36,7 @@ PHP_FUNCTION(webdav_mkdir);
 PHP_FUNCTION(webdav_copy);
 PHP_FUNCTION(webdav_move);
 PHP_FUNCTION(webdav_rename);
+PHP_FUNCTION(webdav_last_error);
 
 ZEND_BEGIN_MODULE_GLOBALS(dav)
         zend_resource *default_link;

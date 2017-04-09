@@ -57,6 +57,7 @@ zend_function_entry dav_functions[] = {
     PHP_FE(webdav_copy, NULL)
     PHP_FE(webdav_move, NULL)
     PHP_FALIAS(webdav_rename, webdav_move, NULL)
+    PHP_FE(webdav_last_error, NULL)
     {NULL, NULL, NULL}  /* Must be the last line in dav_functions[] */
 };
 /* }}} */
@@ -639,6 +640,34 @@ PHP_FUNCTION(webdav_move)
         RETURN_FALSE;
     }
     RETURN_TRUE;
+}
+
+/* {{{ proto string webdav_last_error([resource session]])
+ Get last error message */
+PHP_FUNCTION(webdav_last_error)
+{
+    zval *z_dav;
+    DavSession *dav_session;
+    zend_resource *def_link = NULL;
+    zend_resource *link = NULL;
+
+    if (ZEND_NUM_ARGS() < 1) {
+        def_link = dav_get_default_link(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+        link = def_link;
+    } else {
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "|r", &z_dav) == FAILURE) {
+            RETURN_FALSE;
+        }
+        link = Z_RES_P(z_dav);
+    }
+    if (link == NULL) {
+        php_error_docref(NULL, E_WARNING, "No link");
+        RETURN_FALSE;
+    }
+    dav_session = (DavSession *)zend_fetch_resource(link,
+                                                    le_dav_session_name,
+                                                    le_dav_session);
+    RETURN_STRING(ne_get_error(dav_session->sess));
 }
 
 /*
